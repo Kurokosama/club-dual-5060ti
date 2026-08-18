@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+*.log
+*.jsonl
+bench-out/
+results-local/
+# Local benchmark receipts, retries, and review output. These are deliberately
+# separate from tracked preset/evidence data until a maintainer promotes them.
+.local/bench/
+.DS_Store
+site/data/*.json
