@@ -20,7 +20,7 @@ This is my personal setup running local LLMs on **2× RTX 5060 Ti 16GB** — har
 
 | 项 | 配置 |
 | --- | --- |
-| 运行时 | llama.cpp（CUDA），`ece-0.20.0` |
+| 运行时 | llama.cpp（CUDA，自编译）|
 | 模型 | Qwen3.8-27B，量化 UD-Q5_K_XL |
 | Tensor split | 50/50 |
 | MTP | 3（内置草稿 token）|
@@ -51,8 +51,8 @@ llama-server \
 
 | 指标 | 数值 |
 | --- | --- |
-| 纯生成 decode | ~40.7 tok/s（持续单槽）|
-| 端到端 | 36–57 tok/s |
+| 纯生成 decode | ~70 tok/s（服务端 eval 计时实测）|
+| 端到端 | 长输出 ~57（1000 token 实测）；短输出更低（prefill 占大头）|
 
 > 温度声明一下：这套 CPU 是 PCIe3-only 的 4500，换个平台数字会变，别拿我的当标准答案。
 
@@ -74,12 +74,12 @@ docker run --rm --gpus all \
 
 | 方案 | tok/s |
 | --- | ---: |
-| llama.cpp + MTP-3 | 61.3–67.8 ✅ |
+| llama.cpp + MTP-3 | 61.3–67.8（8/14 用 Q4_K_XL 测）✅ |
 | vLLM NVFP4（无 MTP）| 31.7 |
 | vLLM NVFP4 + MTP-2 | 15.7 |
 | SGLang PP=2 | 6.4 |
 
-结论一句话：**双卡这块 llama.cpp 明显是 vLLM 的两倍**；而且 vLLM 上开 MTP 反而更慢（无 P2P，草稿每轮都要跨一次 PCIe 同步）。
+结论一句话：**双卡这块 llama.cpp 明显是 vLLM 的两倍**；而且 vLLM 上开 MTP 反而更慢（无 P2P，草稿每轮都要跨一次 PCIe 同步）。（表中 llama.cpp 那行是 8/14 用更轻的 Q4_K_XL 测的；当前 Q5_K_XL 单请求 decode 约 70。）
 
 ## 踩过的坑
 
