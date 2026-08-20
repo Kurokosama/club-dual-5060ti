@@ -7,7 +7,7 @@ Personal dual RTX 5060 Ti local LLM setup repo.
 - Keep claims measured, not estimated. If a number came from one machine, say that.
 - Do not commit private IPs, API keys, bearer tokens, or personal paths.
 - Sanitize anything environment-identifying.
-- **Tone: measured, not categorical.** Say what was measured on this machine and what it implies *here* — avoid absolute prescriptions ("must", "can only", "is the ceiling", "don't trust X"). Prefer hedged phrasing ("on this box, for now", "basically/roughly", "wait for the upstream fix"). Measured numbers stay firm; conclusions stay provisional.
+- **Tone: measured, not categorical — and not overly casual.** Write like someone writing up their own rig notes: a bit formal but relaxed, not corporate and not slangy. Avoid absolute prescriptions ("must", "can only", "is the ceiling", "don't trust X") and avoid heavy colloquialisms. Prefer hedged, provisional phrasing ("on this box / for now / roughly / worth re-testing"). Measured numbers stay firm; conclusions stay provisional.
 
 ## README convention — date + model changelog
 
