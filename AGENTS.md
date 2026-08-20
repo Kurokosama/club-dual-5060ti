@@ -19,7 +19,7 @@ The README is a **reverse-chronological log keyed by “date · model”** (e.g.
 **模型**：<model + quant + arch/param notes>
 **Hugging Face**：<link to the GGUF/model repo>
 
-**干了啥**：<one or two lines on why/what changed>
+**本次改动**：<one or two lines on why/what changed>
 
 **启动命令**：
 ```bash
@@ -31,7 +31,7 @@ The README is a **reverse-chronological log keyed by “date · model”** (e.g.
 
 **优化**：<what was optimized, with measured before/after>
 
-**遇到的坑**：<bulleted pitfalls>
+**遇到的问题**：<bulleted pitfalls>
 ```
 
 - Always use the **same tok/s measurement method across entries** so numbers are comparable. Committed (content+reasoning) output speed, client-measured post-prefill. If an older number used a different method (e.g. server-side eval counting speculative draft tokens, which inflates it), annotate it as non-comparable rather than mixing methods.
