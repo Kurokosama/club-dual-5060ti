@@ -28,10 +28,10 @@ This is my personal setup running local LLMs on **2× RTX 5060 Ti 16GB** — har
 | 投机解码 | 关（纯自回归，见下条 8/19 的优化说明）|
 | 上下文 | 256K 原生（实测加载成功）|
 | 视觉 | 有（mmproj + `--image-min-tokens 1024`）|
-| KV | q4_0（tensor-split 下只能用这个）|
+| KV | q4_0（这台机器 tensor-split 下目前只敢用这个，换别的会崩，见下 8/18 坑） |
 | effort | 固定 low |
 
-> 备注：官方下载的 release 是 **CUDA 版**。用 Vulkan 那套 decode 基本只能单卡、白瞎第二张卡——想用满双卡 tensor-split 得**自己编译 CUDA 版**（Blackwell `sm_120`）。
+> 备注：官方下载的 release 是 **CUDA 版**。用 Vulkan 那套 decode 基本只能单卡、白瞎第二张卡——想用满双卡 tensor-split，**大概率得自己编译 CUDA 版**（Blackwell `sm_120`）。
 
 详细启动命令、做了什么、速度、优化和坑，都写在下方最新的那条「8/19 · Ornith」里。
 
@@ -73,11 +73,11 @@ llama-server \
 | MTP n_max=4 + p_min=0.75 | ~43 | 0.83 |
 | **纯自回归（关 MTP）** | **~109** | — |
 
-MTP 在 CUDA 上不仅没提速反而拖慢 ~1/3，调 n_max / p_min 都救不回 → 这台机器**必须关 spec**，纯自回归就是天花板（≈1.5×）。等上游修好 #26750 再复测。
+MTP 在 CUDA 上不仅没提速反而拖慢 ~1/3，调 n_max / p_min 都救不回 → **这台机器目前只能关 spec**；在 #26750 修好前，纯自回归基本就是这台的实测上限（约 1.5×）。等上游修好后再复测看看。
 
 **遇到的坑**：
-- **Ornith 高量化档**：Q5（25GB）在 **256K+视觉下 OOM**，只能 256K 纯文本或视觉降 ctx；Q6 干脆装不下。→ 256K+视觉下 Q4_K_M 就是这台机器的天花板。
-- **DFlash2**（上游 PR #27342，block-diffusion 投机解码，就是有人吹"单卡 4090 90 tok/s"那套）：实测在 **tensor-split 双卡**上直接崩（`GGML_ASSERT ... SPLIT_AXIS_0`）；换成 layer 模式也≈MTP，不如纯自回归。营销数，别信。
+- **Ornith 高量化档**：Q5（25GB）在 **256K+视觉下 OOM**，只能 256K 纯文本或视觉降 ctx；Q6 干脆装不下。→ 就这台机器而言，256K+视觉下 Q4_K_M 基本到头了。
+- **DFlash2**（上游 PR #27342，block-diffusion 投机解码，就是有人吹"单卡 4090 90 tok/s"那套）：实测在 **tensor-split 双卡**上直接崩（`GGML_ASSERT ... SPLIT_AXIS_0`）；换成 layer 模式也≈MTP，不如纯自回归。宣传看着很香，当个参考就行，别太当真。
 
 ---
 
@@ -109,7 +109,7 @@ llama-server \
 | 纯生成 decode | **~46 tok/s**（提交输出，同 Ornith 口径；早年记过 ~70 是服务端 eval 数、含投机草稿 token，虚高不可比）|
 | 端到端 | 长输出 ~57（1000 token 实测）；短输出更低（prefill 占大头）|
 
-**优化**：MTP-3（内置草稿 token）；`-p-min` 实测是负优化，别开。
+**优化**：MTP-3（内置草稿 token）；`-p-min` 实测是负优化，这台机器上暂时别开。
 
 **遇到的坑**：
 - 上游某个 commit（`51a4f6303`）把 spec 挪进 worker 线程后，这个拓扑下 MTP 全被拒，decode 掉到 ~19 tok/s（后查明与 CUDA MTP 问题同源）。
