@@ -106,7 +106,7 @@ llama-server \
 **速度**（实测）：
 | 指标 | 数值 |
 | --- | --- |
-| 纯生成 decode | ~70 tok/s（服务端 eval 计时）|
+| 纯生成 decode | **~46 tok/s**（提交输出，同 Ornith 口径；早年记过 ~70 是服务端 eval 数、含投机草稿 token，虚高不可比）|
 | 端到端 | 长输出 ~57（1000 token 实测）；短输出更低（prefill 占大头）|
 
 **优化**：MTP-3（内置草稿 token）；`-p-min` 实测是负优化，别开。
@@ -136,7 +136,7 @@ docker run --rm --gpus all \
 | vLLM NVFP4 + MTP-2 | 15.7 |
 | SGLang PP=2 | 6.4 |
 
-一句话：**双卡下 llama.cpp 明显是 vLLM 的两倍**；vLLM 上开 MTP 反而更慢（无 P2P，草稿每轮跨一次 PCIe 同步）。（表中 llama.cpp 那行是 8/14 用更轻的 Q4_K_XL 测的；现在 Q5_K_XL 单请求 decode 约 70。）
+一句话：**双卡下 llama.cpp 明显是 vLLM 的两倍**；vLLM 上开 MTP 反而更慢（无 P2P，草稿每轮跨一次 PCIe 同步）。（表中 llama.cpp 那行是 8/14 用更轻的 Q4_K_XL 测的；Q5_K_XL 单请求提交输出约 46 tok/s。）
 
 > 注：这条条目里提到的 **Qwen3.8 UD-Q5_K_XL V3**（Unsloth Dynamic 3.0，2026-08-19 同尺寸精度提升、速度同 v2）也测过并短暂换装，因整机切到 Ornith 而未继续使用，文件保留可回滚。
 
